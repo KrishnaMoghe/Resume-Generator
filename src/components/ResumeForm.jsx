@@ -9,6 +9,7 @@ export default function ResumeForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [completedSteps, setCompletedSteps] = useState(new Set());
   const [formData, setFormData] = useState({
     fullName: "John Doe",
     email: "john.doe@example.com",
@@ -185,13 +186,45 @@ export default function ResumeForm() {
     setFormData({ ...formData, photo: e.target.files[0] });
   };
 
+  const markStepCompleted = (stepNumber) => {
+    setCompletedSteps((prev) => new Set([...prev, stepNumber]));
+  };
+
   const handleNext = () => {
-    setCurrentStep((prev) => prev + 1);
+    markStepCompleted(currentStep);
+    if (currentStep < 8) {
+      setCurrentStep((prev) => prev + 1);
+    }
     setError("");
   };
 
   const handleBack = () => {
-    setCurrentStep((prev) => prev - 1);
+    if (currentStep > 1) {
+      setCurrentStep((prev) => prev - 1);
+    }
+    setError("");
+  };
+
+  const removeDomain = (domainToRemove) => {
+    setFormData((prev) => ({
+      ...prev,
+      preferredDomains: prev.preferredDomains.filter(
+        (domain) => domain !== domainToRemove
+      ),
+    }));
+  };
+
+  const removeTool = (toolToRemove) => {
+    setFormData((prev) => ({
+      ...prev,
+      toolsTechnologies: prev.toolsTechnologies.filter(
+        (tool) => tool !== toolToRemove
+      ),
+    }));
+  };
+
+  const handleTabClick = (stepNumber) => {
+    setCurrentStep(stepNumber);
     setError("");
   };
 
@@ -416,7 +449,7 @@ export default function ResumeForm() {
       yPosition += 2;
 
       formData.projects.forEach((project, index) => {
-        if (project.title) {
+        if (project.title && project.title.trim() !== "") {
           checkNewPage(25); // Ensure enough space for project
 
           addText(`${project.title}`, 12, true);
@@ -441,7 +474,7 @@ export default function ResumeForm() {
       yPosition += 2;
 
       formData.experiences.forEach((exp) => {
-        if (exp.title) {
+        if (exp.title && exp.title.trim() !== "") {
           checkNewPage(25); // Ensure enough space for experience
 
           addText(`${exp.title} - ${exp.company}`, 12, true);
@@ -737,16 +770,23 @@ export default function ResumeForm() {
           </p>
         </div>
 
-        <div className="progress-container">
-          <div className="progress-bar">
-            <div
-              className="progress-fill"
-              style={{ width: `${(currentStep / 8) * 100}%` }}
-            ></div>
-          </div>
-          <div className="step-indicator">
-            <span className="step-number">Step {currentStep} of 8</span>
-            <span>{stepTitles[currentStep]}</span>
+        <div className="tab-navigation">
+          <div className="tab-container">
+            {Object.entries(stepTitles).map(([stepNum, title]) => (
+              <button
+                key={stepNum}
+                type="button"
+                className={`tab-button ${
+                  currentStep === parseInt(stepNum) ? "active" : ""
+                } ${completedSteps.has(parseInt(stepNum)) ? "completed" : ""}`}
+                onClick={() => handleTabClick(parseInt(stepNum))}
+              >
+                <span className="tab-number">
+                  {completedSteps.has(parseInt(stepNum)) ? "✓" : stepNum}
+                </span>
+                <span className="tab-title">{title}</span>
+              </button>
+            ))}
           </div>
         </div>
 
@@ -979,7 +1019,7 @@ export default function ResumeForm() {
                         <input
                           type="text"
                           placeholder="Add custom domain"
-                          value={formData.customDomainInput}
+                          value={formData.customDomainInput || ""}
                           onChange={(e) =>
                             setFormData({
                               ...formData,
@@ -991,7 +1031,7 @@ export default function ResumeForm() {
                         <button
                           type="button"
                           onClick={() => {
-                            const custom = formData.customDomainInput.trim();
+                            const custom = formData.customDomainInput?.trim();
                             if (
                               custom &&
                               !formData.preferredDomains.includes(custom)
@@ -1012,15 +1052,30 @@ export default function ResumeForm() {
                         </button>
                       </div>
 
-                      {/* Display selected domains */}
+                      {/* Display selected domains with delete buttons */}
                       {formData.preferredDomains.length > 0 && (
-                        <div className="mt-2">
-                          <h4 className="font-medium">Selected Domains:</h4>
-                          <ul className="list-disc list-inside text-sm text-gray-700">
+                        <div className="mt-3">
+                          <h4 className="font-medium mb-2">
+                            Selected Domains:
+                          </h4>
+                          <div className="flex flex-wrap gap-2">
                             {formData.preferredDomains.map((domain, index) => (
-                              <li key={index}>{domain}</li>
+                              <div
+                                key={index}
+                                className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center"
+                              >
+                                <span>{domain}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => removeDomain(domain)}
+                                  className="ml-2 text-red-600 hover:text-red-800 font-bold"
+                                  title="Remove domain"
+                                >
+                                  ×
+                                </button>
+                              </div>
                             ))}
-                          </ul>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -1056,13 +1111,13 @@ export default function ResumeForm() {
               {currentStep === 4 && (
                 <div>
                   {renderRadioGroup(
-                    "Rate your coding proficiency",
+                    "Rate your coding proficiency (Optional)",
                     ["1", "2", "3", "4", "5"],
                     "codingProficiency"
                   )}
 
                   {renderCheckboxGroup(
-                    "Programming Languages Known",
+                    "Programming Languages Known (Optional)",
                     [
                       "C",
                       "C++",
@@ -1119,7 +1174,7 @@ export default function ResumeForm() {
                         <input
                           type="text"
                           placeholder="Add custom tool or software"
-                          value={formData.customToolInput}
+                          value={formData.customToolInput || ""}
                           onChange={(e) =>
                             setFormData({
                               ...formData,
@@ -1131,7 +1186,7 @@ export default function ResumeForm() {
                         <button
                           type="button"
                           onClick={() => {
-                            const custom = formData.customToolInput.trim();
+                            const custom = formData.customToolInput?.trim();
                             if (
                               custom &&
                               !formData.toolsTechnologies.includes(custom)
@@ -1151,17 +1206,31 @@ export default function ResumeForm() {
                           Add
                         </button>
                       </div>
-                    </div>
-                  )}
 
-                  {formData.toolsTechnologies.length > 0 && (
-                    <div className="mt-2">
-                      <h4 className="font-medium">Selected Tools:</h4>
-                      <ul className="list-disc list-inside text-sm text-gray-700">
-                        {formData.toolsTechnologies.map((tool, index) => (
-                          <li key={index}>{tool}</li>
-                        ))}
-                      </ul>
+                      {/* Display selected tools with delete buttons */}
+                      {formData.toolsTechnologies.length > 0 && (
+                        <div className="mt-3">
+                          <h4 className="font-medium mb-2">Selected Tools:</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {formData.toolsTechnologies.map((tool, index) => (
+                              <div
+                                key={index}
+                                className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm flex items-center"
+                              >
+                                <span>{tool}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => removeTool(tool)}
+                                  className="ml-2 text-red-600 hover:text-red-800 font-bold"
+                                  title="Remove tool"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -1206,6 +1275,7 @@ export default function ResumeForm() {
                       <h3 className="card-title">
                         Project {index + 1} {index === 1 && "(Optional)"}
                       </h3>
+
                       <div className="form-group">
                         <input
                           type="text"
@@ -1286,8 +1356,47 @@ export default function ResumeForm() {
                           className="form-input"
                         />
                       </div>
+                      {formData.projects.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updatedProjects = formData.projects.filter(
+                              (_, i) => i !== index
+                            );
+                            setFormData({
+                              ...formData,
+                              projects: updatedProjects,
+                            });
+                          }}
+                          className="btn btn-danger btn-sm"
+                          style={{ float: "right" }}
+                        >
+                          Remove
+                        </button>
+                      )}
                     </div>
                   ))}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        projects: [
+                          ...prev.projects,
+                          {
+                            title: "",
+                            description: "",
+                            technologies: "",
+                            role: "",
+                            link: "",
+                          },
+                        ],
+                      }));
+                    }}
+                    className="btn btn-secondary"
+                  >
+                    Add Another Project
+                  </button>
                 </div>
               )}
               {/* Step 6: Experience */}
@@ -1376,8 +1485,49 @@ export default function ResumeForm() {
                           <option value="Hybrid">Hybrid</option>
                         </select>
                       </div>
+                      {formData.experiences.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updatedExperiences =
+                              formData.experiences.filter(
+                                (_, i) => i !== index
+                              );
+                            setFormData({
+                              ...formData,
+                              experiences: updatedExperiences,
+                            });
+                          }}
+                          className="btn btn-danger btn-sm"
+                          style={{ float: "right" }}
+                        >
+                          Remove
+                        </button>
+                      )}
                     </div>
                   ))}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        experiences: [
+                          ...prev.experiences,
+                          {
+                            title: "",
+                            company: "",
+                            duration: "",
+                            responsibilities: "",
+                            technologies: "",
+                            workMode: "",
+                          },
+                        ],
+                      }));
+                    }}
+                    className="btn btn-secondary"
+                  >
+                    Add Another Experience
+                  </button>
                 </div>
               )}
               {/* // Replace the Sports Achievements section in Step 7 with this: */}
@@ -1552,21 +1702,31 @@ export default function ResumeForm() {
                     Next →
                   </button>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={handleSubmit}
-                    className="btn btn-success"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <>
-                        <span className="spinner-border spinner-border-sm mr-2"></span>
-                        Generating Resume...
-                      </>
-                    ) : (
-                      "Generate Resume"
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button
+                      type="button"
+                      onClick={handleSubmit}
+                      className="btn btn-primary"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm mr-2"></span>
+                          Generating Resume...
+                        </>
+                      ) : (
+                        "Preview Resume"
+                      )}
+                    </button>
+                    {generatedResume && (
+                      <button
+                        onClick={downloadPDF}
+                        className="btn btn-success"
+                      >
+                        Download Resume as PDF
+                      </button>
                     )}
-                  </button>
+                  </div>
                 )}
               </div>
             </div>
