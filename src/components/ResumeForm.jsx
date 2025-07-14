@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import "./ResumeForm.css";
 import ResumePreview from "./ResumePreview";
-import html2pdf from "html2pdf.js";
+// import html2pdf from "html2pdf.js";
 import jsPDF from "jspdf";
 
 export default function ResumeForm() {
@@ -197,6 +197,10 @@ export default function ResumeForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (currentStep !== 8) {
+      return;
+    }
     setIsLoading(true);
     setError("");
     setSuccess("");
@@ -746,7 +750,7 @@ export default function ResumeForm() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <form>
           <div className="form-content">
             {error && <div className="error-message">{error}</div>}
             {success && <div className="success-message">{success}</div>}
@@ -1549,13 +1553,14 @@ export default function ResumeForm() {
                   </button>
                 ) : (
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={handleSubmit}
                     className="btn btn-success"
                     disabled={isLoading}
                   >
                     {isLoading ? (
                       <>
-                        <span className="loading-spinner"></span>
+                        <span className="spinner-border spinner-border-sm mr-2"></span>
                         Generating Resume...
                       </>
                     ) : (
