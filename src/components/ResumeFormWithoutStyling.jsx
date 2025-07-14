@@ -7,7 +7,7 @@ export default function ResumeForm() {
     email: "john.doe@example.com",
     phone: "9876543210",
     dob: "2000-01-01",
-    gender: "Male",
+    gender: "Female",
     address: "123, ABC Street, Gujarat, India",
     linkedIn: "https://linkedin.com/in/johndoe",
     github: "https://github.com/johndoe",
