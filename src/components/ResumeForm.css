@@ -580,3 +580,41 @@ body {
     font-size: 1.5rem;
   }
 }
+
+.btn-download {
+  background-color: #2563eb;
+  color: white;
+  width: 50%;
+  margin: 10px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  margin-top: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn-download:hover {
+  background-color: #3455c0;
+}
+
+.resume-preview {
+  margin-top: 2rem;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  color: #111;
+  font-family: 'Georgia', serif;
+}
+
+.resume-text {
+  white-space: pre-wrap;
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 1rem;
+  background-color: #f9f9f9;
+  border: 1px solid #e5e5e5;
+  border-radius: 5px;
+}
