@@ -15,7 +15,8 @@ app.post('/api/generate-resume', async (req, res) => {
 
   // Construct prompt using exact field names from frontend
   const prompt = `
-  You are a professional resume writer. Using the details provided below, generate a **well-structured and professional resume** in plain text format with clear sections, consistent formatting, and formal language.
+  You are a professional resume writer. Using the details provided below, Generate a professional resume in clean HTML format (no emojis), using clear headings, bullet points, and proper alignment. Only return HTML content. No explanation.
+
   
   ---
   
