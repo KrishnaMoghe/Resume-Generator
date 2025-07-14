@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import "./ResumeForm.css";
+import html2pdf from "html2pdf.js"
 
 export default function ResumeForm() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -87,6 +88,16 @@ export default function ResumeForm() {
     hobbiesInterests: "Playing chess, Blogging, UI Design",
     specialNeeds: "None",
     additionalComments: "Looking forward to work in fast-paced learning environments",
+
+    moocCourses: "NPTEL Software Developement",
+    sportsAchievements: {
+      sportName: "",
+      level: ""
+    },
+
+    planningAbroad: "No",
+    applyingScholarship: "No",
+    scholarshipNames: ""
   });
 
   const [generatedResume, setGeneratedResume] = useState("");
@@ -161,6 +172,20 @@ export default function ResumeForm() {
     }
   };
 
+  const downloadPDF = () => {
+    const element = previewRef.current;
+    const opt = {
+      margin: 0.5,
+      filename: 'Resume.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(element).save();
+  };
+
+
   const handleCheckboxChange = (value, field) => {
     const currentValues = formData[field];
     const updatedValues = currentValues.includes(value)
@@ -173,7 +198,7 @@ export default function ResumeForm() {
     return (
       <div className="form-group">
         <label className="form-label" htmlFor={name}>
-          {label} {required && <span style={{color: '#dc2626'}}>*</span>}
+          {label} {required && <span style={{ color: '#dc2626' }}>*</span>}
         </label>
         {type === "textarea" ? (
           <textarea
@@ -336,9 +361,9 @@ export default function ResumeForm() {
                   {renderFormGroup("Current Semester", "currentSemester", "number", "Enter current semester", true)}
                   {renderFormGroup("Expected Graduation Year", "graduationYear", "number", "Enter graduation year", true)}
                   {renderFormGroup("Latest CGPA/Percentage", "cgpa", "text", "Enter your CGPA or percentage", true)}
-                  
+
                   {renderRadioGroup("Have you had any backlogs?", ["Yes", "No"], "backlogs")}
-                  
+
                   {renderFormGroup("12th School Name", "twelfthSchool", "text", "Enter your 12th school name")}
                   {renderFormGroup("12th Board", "twelfthBoard", "text", "e.g., CBSE, GSEB")}
                   {renderFormGroup("12th Marks", "twelfthMarks", "text", "Enter percentage or grade")}
@@ -376,7 +401,7 @@ export default function ResumeForm() {
                   {renderFormGroup("Other Domain", "otherDomain", "text", "Specify other domain if any")}
                   {renderRadioGroup("Are you open to relocation?", ["Yes", "No", "Depends"], "relocation")}
                   {renderRadioGroup("Are you preparing for competitive exams?", ["Yes", "No"], "preparingExams")}
-                  
+
                   {formData.preparingExams === "Yes" && (
                     renderFormGroup("Exam Names", "examNames", "text", "e.g., GATE, GRE, CAT")
                   )}
@@ -387,22 +412,23 @@ export default function ResumeForm() {
               {currentStep === 4 && (
                 <div>
                   {renderRadioGroup("Rate your coding proficiency", ["1", "2", "3", "4", "5"], "codingProficiency")}
-                  
+
                   {renderCheckboxGroup("Programming Languages Known", [
                     "C", "C++", "Java", "Python", "JavaScript", "Kotlin", "Go", "Rust"
                   ], "programmingLanguages")}
-                  
+
                   {renderFormGroup("Other Programming Language", "otherLanguage", "text", "Specify other language if any")}
-                  
+
                   {renderCheckboxGroup("Technologies/Tools Known", [
-                    "HTML/CSS", "React.js", "Node.js", "MySQL/PostgreSQL", "MongoDB", 
+                    "HTML/CSS", "React.js", "Node.js", "MySQL/PostgreSQL", "MongoDB",
                     "TensorFlow/PyTorch", "Docker/Kubernetes", "Figma", "Git/GitHub"
                   ], "toolsTechnologies")}
-                  
+
                   {renderFormGroup("Other Tools/Technologies", "otherTool", "text", "Specify other tools if any")}
                   {renderFormGroup("Certifications", "certifications", "textarea", "Mention course name, platform, and year")}
                   {renderRadioGroup("Have you participated in Hackathons/Contests?", ["Yes", "No"], "hackathonParticipation")}
-                  
+                  {renderFormGroup("MOOC Courses Completed", "moocCourses", "textarea", "e.g., Course name, Platform, Year")}
+
                   {formData.hackathonParticipation === "Yes" && (
                     renderFormGroup("Hackathon Details", "hackathonDetails", "textarea", "Mention details of hackathons or contests")
                   )}
@@ -584,6 +610,47 @@ export default function ResumeForm() {
                   {renderFormGroup("Co-curricular Activities", "coCurricularActivities", "textarea", "e.g., Clubs, Events, Competitions")}
                   {renderFormGroup("Paper Publications", "publications", "textarea", "Mention any research papers or publications")}
                   {renderFormGroup("Open Source Contributions", "openSourceContributions", "textarea", "Mention any open source projects you've contributed to")}
+                  <div className="form-group">
+                    <label className="form-label">Sports Achievements</label>
+                    <input
+                      type="text"
+                      name="sportName"
+                      placeholder="Mention the sport and any achievements"
+                      value={formData.sportsAchievements.sportName}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          sportsAchievements: {
+                            ...formData.sportsAchievements,
+                            sportName: e.target.value
+                          }
+                        })
+                      }
+                      className="form-input"
+                    />
+                    <select
+                      name="level"
+                      value={formData.sportsAchievements.level}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          sportsAchievements: {
+                            ...formData.sportsAchievements,
+                            level: e.target.value
+                          }
+                        })
+                      }
+                      className="form-input form-select"
+                    >
+                      <option value="">Select Achievement Level</option>
+                      <option value="College">College</option>
+                      <option value="District">District</option>
+                      <option value="State">State</option>
+                      <option value="National">National</option>
+                      <option value="International">International</option>
+                    </select>
+                  </div>
+
                 </div>
               )}
 
@@ -596,6 +663,12 @@ export default function ResumeForm() {
                   {renderFormGroup("Hobbies & Interests", "hobbiesInterests", "textarea", "Share your hobbies and interests")}
                   {renderFormGroup("Special Needs/Accommodations", "specialNeeds", "textarea", "Any special needs or accommodations?")}
                   {renderFormGroup("Additional Comments", "additionalComments", "textarea", "Any additional comments or unique traits to highlight?")}
+                  {renderRadioGroup("Planning for higher studies abroad?", ["Yes", "No"], "planningAbroad")}
+
+                  {renderRadioGroup("Do you intend to apply for a scholarship?", ["Yes", "No"], "applyingScholarship")}
+
+                  {formData.applyingScholarship === "Yes" && renderFormGroup("Scholarship(s) you're considering", "scholarshipNames", "text", "e.g., Fulbright, Chevening")}
+
                 </div>
               )}
 
@@ -638,6 +711,13 @@ export default function ResumeForm() {
             </div>
           </div>
         )}
+
+        <div className="download-btn-wrapper">
+          <button className="btn btn-download" onClick={downloadPDF}>
+            ⬇️ Download Resume as PDF
+          </button>
+        </div>
+
       </div>
     </div>
   );
