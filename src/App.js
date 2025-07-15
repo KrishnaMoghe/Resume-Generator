@@ -1,5 +1,5 @@
 import React from "react";
-import ResumeForm from "./components/ResumeForm";
+import ResumeForm from "./components/ResumeForm/ResumeForm";
 
 function App() {
   return (
