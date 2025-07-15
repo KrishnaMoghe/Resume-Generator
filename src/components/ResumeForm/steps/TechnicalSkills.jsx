@@ -40,7 +40,7 @@ const TechnicalSkills = ({
         <div>
           {renderRadioGroup(
             "Rate your coding proficiency (Optional)",
-            ["1", "2", "3", "4", "5"],
+            ["1", "2", "3", "4", "5", "Not Relevant"],
             "codingProficiency"
           )}
 

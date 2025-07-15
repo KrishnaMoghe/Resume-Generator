@@ -63,50 +63,92 @@ export default function ResumeForm() {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (currentStep !== 8) {
-      return;
-    }
     setIsLoading(true);
     setError("");
     setSuccess("");
-
+  
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/generate-resume",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
-
+      const response = await fetch("http://localhost:5000/api/generate-resume", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+  
       if (!response.ok) {
         throw new Error("Failed to generate resume");
       }
-
+  
       const data = await response.json();
-      setGeneratedResume(data.resume);
       setSuccess("Resume generated successfully! 🎉");
-
-      // Scroll to resume preview
-      setTimeout(() => {
-        if (previewRef.current) {
-          previewRef.current.scrollIntoView({ behavior: "smooth" });
-        }
-      }, 100);
+  
+      // ✅ Clean the generated content
+      let rawResume = data.resume;
+  
+      // Remove markdown and extra explanation text
+      rawResume = rawResume
+        .replace(/^[\s\S]*?```html/i, "")      // Remove everything before ```html
+        .replace(/```[\s\S]*$/, "")           // Remove everything after final ```
+        .trim();                              // Trim leftover whitespace
+        
+        const imageHTML = formData.photo
+        ? `<img src="${formData.photo}" alt="User Photo" style="width:120px;height:120px;border-radius:8px;margin-bottom:20px;" />`
+        : "";
+      // ✅ Open clean HTML in new tab
+      const newTab = window.open();
+      if (newTab) {
+        newTab.document.open();
+        newTab.document.write(`
+          <html>
+            <head>
+              <title>Generated Resume</title>
+              <style>
+                body {
+                  font-family: Arial, sans-serif;
+                  line-height: 1.5;
+                  margin: 40px;
+                  background: #fff;
+                }
+                h1, h2, h3 {
+                  color: #333;
+                }
+                .download-btn {
+                  display: inline-block;
+                  margin-top: 20px;
+                  padding: 10px 20px;
+                  background-color: #007bff;
+                  color: white;
+                  border: none;
+                  border-radius: 4px;
+                  font-size: 14px;
+                  cursor: pointer;
+                }
+                .download-btn:hover {
+                  background-color: #0056b3;
+                }
+              </style>
+            </head>
+            <body>
+              ${imageHTML}
+              ${rawResume}
+              <button class="download-btn" onclick="window.print()">Download PDF</button>
+            </body>
+          </html>
+        `);
+        newTab.document.close();
+      } else {
+        alert("Popup blocked. Please allow popups for this site.");
+      }
+  
     } catch (error) {
       console.error("Error submitting form", error);
-      setError(
-        "Something went wrong while generating resume. Please try again."
-      );
+      setError("Something went wrong while generating resume. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
-
+  
   const resumeRef = useRef(null);
 
   const renderFormGroup = (
