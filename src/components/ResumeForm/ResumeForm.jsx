@@ -17,6 +17,7 @@ import FinalDetails from "./steps/FinalDetails";
 import constants from "./constants";
 const { stepTitles } = constants;
 const { domainOptions } = constants;
+const { toolOptions } = constants;
 export default function ResumeForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -305,13 +306,13 @@ export default function ResumeForm() {
               {currentStep === 4 && (
                 <TechnicalSkills
                   formData={formData}
-                  handleChange={handleChange}
-                  handleFileChange={handleFileChange}
                   renderFormGroup={renderFormGroup}
+                  currentStep={currentStep}
                   renderRadioGroup={renderRadioGroup}
                   renderCheckboxGroup={renderCheckboxGroup}
-                  currentStep={currentStep}
+                  toolOptions={toolOptions}
                   setFormData={setFormData}
+                  removeTool={removeTool}
                 />
               )}
 
@@ -392,7 +393,11 @@ export default function ResumeForm() {
                       )}
                     </button>
                     {generatedResume && (
-                      <button onClick={downloadPDF} className="btn btn-success">
+                      <button
+                        type="button"
+                        onClick={() => downloadPDF(formData)}
+                        className="btn btn-success"
+                      >
                         Download Resume as PDF
                       </button>
                     )}
@@ -408,7 +413,8 @@ export default function ResumeForm() {
             <ResumePreview formData={formData} refProp={resumeRef} />
 
             <button
-              onClick={downloadPDF(formData)}
+              type="button"
+              onClick={() => downloadPDF(formData)}
               className="mt-4 bg-green-600 text-white px-4 py-2 rounded"
             >
               Download Resume as PDF
