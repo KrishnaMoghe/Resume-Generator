@@ -4,8 +4,6 @@ const CareerGoals = ({
   formData,
   setFormData,
   currentStep,
-  handleChange,
-  handleFileChange,
   renderFormGroup,
   renderCheckboxGroup,
   renderRadioGroup,
@@ -36,29 +34,38 @@ const CareerGoals = ({
                 Preferred Domain / Field of Work
               </h3>
 
-              {domainOptions[formData.branch]?.map((domain, i) => (
-                <label key={i} className="block">
-                  <input
-                    type="checkbox"
-                    value={domain}
-                    checked={formData.preferredDomains.includes(domain)}
-                    onChange={(e) => {
-                      const checked = e.target.checked;
-                      const value = e.target.value;
+              <div className="domain-checkbox-container">
+                {domainOptions[formData.branch]?.map((domain, i) => (
+                  <label
+                    key={i}
+                    className={`domain-checkbox-item ${
+                      formData.preferredDomains.includes(domain)
+                        ? "checked"
+                        : ""
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      value={domain}
+                      checked={formData.preferredDomains.includes(domain)}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        const value = e.target.value;
 
-                      setFormData((prev) => ({
-                        ...prev,
-                        preferredDomains: checked
-                          ? [...prev.preferredDomains, value]
-                          : prev.preferredDomains.filter((d) => d !== value),
-                      }));
-                    }}
-                  />{" "}
-                  {domain}
-                </label>
-              ))}
+                        setFormData((prev) => ({
+                          ...prev,
+                          preferredDomains: checked
+                            ? [...prev.preferredDomains, value]
+                            : prev.preferredDomains.filter((d) => d !== value),
+                        }));
+                      }}
+                    />
+                    <span>{domain}</span>
+                  </label>
+                ))}
+              </div>
 
-              <div className="flex items-center mt-2">
+              <div className="custom-domain-input">
                 <input
                   type="text"
                   placeholder="Add custom domain"
@@ -69,7 +76,6 @@ const CareerGoals = ({
                       customDomainInput: e.target.value,
                     })
                   }
-                  className="form-input border p-2 mr-2 flex-1"
                 />
                 <button
                   type="button"
@@ -83,26 +89,21 @@ const CareerGoals = ({
                       }));
                     }
                   }}
-                  className="bg-green-600 text-white px-3 py-1 rounded"
                 >
                   Add
                 </button>
               </div>
 
               {formData.preferredDomains.length > 0 && (
-                <div className="mt-3">
-                  <h4 className="font-medium mb-2">Selected Domains:</h4>
-                  <div className="flex flex-wrap gap-2">
+                <div className="selected-tools">
+                  <h4>Selected Domains:</h4>
+                  <div className="selected-tools-grid">
                     {formData.preferredDomains.map((domain, index) => (
-                      <div
-                        key={index}
-                        className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center"
-                      >
+                      <div key={index} className="selected-tool-tag">
                         <span>{domain}</span>
                         <button
                           type="button"
                           onClick={() => removeDomain(domain)}
-                          className="ml-2 text-red-600 hover:text-red-800 font-bold"
                           title="Remove domain"
                         >
                           ×

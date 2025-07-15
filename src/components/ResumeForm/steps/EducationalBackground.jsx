@@ -10,6 +10,7 @@ const EducationalBackground = ({
   return (
     <div>
     {currentStep === 2 && (
+      
       <div>
         <select name="branch" value={formData.branch} onChange={handleChange}>
           <option value="">Select Branch</option>

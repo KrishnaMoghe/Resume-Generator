@@ -17,7 +17,7 @@ const UseFormData = () => {
     preferredDomains: [],
     customDomains: [],
     toolsTechnologies: [],
-    customToolInput:"",
+    customToolInput: "",
     customTools: [],
     currentDegree: "B.Tech in Computer Engineering",
     collegeName: "ABC Institute of Technology",

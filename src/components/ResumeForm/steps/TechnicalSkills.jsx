@@ -69,12 +69,17 @@ const TechnicalSkills = ({
           {/* Always show the tools section, but with different content based on branch */}
           <div className="mb-4">
             <h3 className="font-semibold mb-2">Technologies / Tools Known</h3>
-
-            {/* Render tools checkboxes */}
+  
+            {/* Display selected tools with delete buttons */}
             {allTools.length > 0 && (
-              <div className="space-y-2 mb-3">
+              <div className="tools-checkbox-container">
                 {allTools.map((tool, i) => (
-                  <label key={i} className="flex items-center space-x-2">
+                  <label
+                    key={i}
+                    className={`tools-checkbox-item ${
+                      currentTools.includes(tool) ? "checked" : ""
+                    }`}
+                  >
                     <input
                       type="checkbox"
                       value={tool}
@@ -92,16 +97,14 @@ const TechnicalSkills = ({
                               ),
                         }));
                       }}
-                      className="form-checkbox"
                     />
                     <span>{tool}</span>
                   </label>
                 ))}
               </div>
             )}
-
-            {/* Input to add custom tool */}
-            <div className="flex items-center mt-3">
+          
+            <div className="custom-tool-input">
               <input
                 type="text"
                 placeholder="Add custom tool or software"
@@ -112,7 +115,6 @@ const TechnicalSkills = ({
                     customToolInput: e.target.value,
                   })
                 }
-                className="form-input border p-2 mr-2 flex-1"
               />
               <button
                 type="button"
@@ -129,27 +131,20 @@ const TechnicalSkills = ({
                     }));
                   }
                 }}
-                className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
               >
                 Add
               </button>
             </div>
-
-            {/* Display selected tools with delete buttons */}
             {currentTools.length > 0 && (
-              <div className="mt-3">
-                <h4 className="font-medium mb-2">Selected Tools:</h4>
-                <div className="flex flex-wrap gap-2">
+              <div className="selected-tools">
+                <h4>Selected Tools:</h4>
+                <div className="selected-tools-grid">
                   {currentTools.map((tool, index) => (
-                    <div
-                      key={index}
-                      className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm flex items-center"
-                    >
+                    <div key={index} className="selected-tool-tag">
                       <span>{tool}</span>
                       <button
                         type="button"
                         onClick={() => removeTool(tool)}
-                        className="ml-2 text-red-600 hover:text-red-800 font-bold"
                         title="Remove tool"
                       >
                         ×

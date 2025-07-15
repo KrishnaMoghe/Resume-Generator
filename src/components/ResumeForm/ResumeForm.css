@@ -151,6 +151,7 @@
     padding: 2rem;
   }
   
+  
   .section-title {
     font-size: 1.75rem;
     font-weight: 600;
@@ -501,3 +502,510 @@
     outline: 2px solid var(--primary-color);
     outline-offset: 2px;
   }
+
+  /* Technologies/Tools checkbox styling */
+.tools-checkbox-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+  
+  .tools-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+  }
+  
+  .tools-checkbox-item:hover {
+    border-color: var(--border-hover);
+    background: var(--background-color);
+  }
+  
+  .tools-checkbox-item.checked {
+    border-color: var(--primary-color);
+    background: rgba(37, 99, 235, 0.05);
+  }
+  
+  .tools-checkbox-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary-color);
+  }
+  
+  .tools-checkbox-item span {
+    flex: 1;
+    color: var(--text-primary);
+  }
+  
+  /* Custom tool input styling */
+  .custom-tool-input {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  
+  .custom-tool-input input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background: var(--card-background);
+  }
+  
+  .custom-tool-input input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+  
+  .custom-tool-input button {
+    padding: 0.75rem 1.5rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .custom-tool-input button:hover {
+    background: var(--primary-dark);
+  }
+  
+  /* Selected tools display */
+  .selected-tools {
+    margin-top: 1rem;
+  }
+  
+  .selected-tools h4 {
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    font-size: 0.875rem;
+  }
+  
+  .selected-tools-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .selected-tool-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: #f0fdf4;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  
+  .selected-tool-tag button {
+    background: none;
+    border: none;
+    color: #dc2626;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0;
+    margin-left: 0.25rem;
+    font-weight: bold;
+  }
+  
+  .selected-tool-tag button:hover {
+    color: #991b1b;
+  }
+
+  /* Technologies/Tools checkbox styling */
+.tools-checkbox-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+  
+  .tools-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+  }
+  
+  .tools-checkbox-item:hover {
+    border-color: var(--border-hover);
+    background: var(--background-color);
+  }
+  
+  .tools-checkbox-item.checked {
+    border-color: var(--primary-color);
+    background: rgba(37, 99, 235, 0.05);
+  }
+  
+  .tools-checkbox-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary-color);
+  }
+  
+  .tools-checkbox-item span {
+    flex: 1;
+    color: var(--text-primary);
+  }
+  
+  /* Custom tool input styling */
+  .custom-tool-input {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  
+  .custom-tool-input input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background: var(--card-background);
+  }
+  
+  .custom-tool-input input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+  
+  .custom-tool-input button {
+    padding: 0.75rem 1.5rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .custom-tool-input button:hover {
+    background: var(--primary-dark);
+  }
+  
+  /* Selected tools display */
+  .selected-tools {
+    margin-top: 1rem;
+  }
+  
+  .selected-tools h4 {
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    font-size: 0.875rem;
+  }
+  
+  .selected-tools-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .selected-tool-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: #f0fdf4;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  
+  .selected-tool-tag button {
+    background: none;
+    border: none;
+    color: #dc2626;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0;
+    margin-left: 0.25rem;
+    font-weight: bold;
+  }
+  
+  .selected-tool-tag button:hover {
+    color: #991b1b;
+  }
+  
+  /* Domain checkboxes styling */
+  .domain-checkbox-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+  
+  .domain-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+  }
+  
+  .domain-checkbox-item:hover {
+    border-color: var(--border-hover);
+    background: var(--background-color);
+  }
+  
+  .domain-checkbox-item.checked {
+    border-color: var(--primary-color);
+    background: rgba(37, 99, 235, 0.05);
+  }
+  
+  .domain-checkbox-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary-color);
+  }
+  
+  .domain-checkbox-item span {
+    flex: 1;
+    color: var(--text-primary);
+  }
+  
+  /* Custom domain input styling */
+  .custom-domain-input {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  
+  .custom-domain-input input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background: var(--card-background);
+  }
+  
+  .custom-domain-input input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+  
+  .custom-domain-input button {
+    padding: 0.75rem 1.5rem;
+    background: var(--success-color);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .custom-domain-input button:hover {
+    background: #059669;
+  }
+  
+  /* Selected domains display */
+  .selected-domains {
+    margin-top: 1rem;
+  }
+  
+  .selected-domains h4 {
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    font-size: 0.875rem;
+  }
+  
+  .selected-domains-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .selected-domain-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: #eff6ff;
+    color: #1e40af;
+    border: 1px solid #bfdbfe;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  
+  .selected-domain-tag button {
+    background: none;
+    border: none;
+    color: #dc2626;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0;
+    margin-left: 0.25rem;
+    font-weight: bold;
+  }
+  
+  .selected-domain-tag button:hover {
+    color: #991b1b;
+  }
+  
+
+
+  /* Branch Select Wrapper */
+.branch-select-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    margin: 16px 0;
+  }
+  
+  /* Main Select Styling */
+  .form-select {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #333;
+    background-color: #fff;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23333' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px 12px;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    appearance: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Focus State */
+  .form-select:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    background-color: #fafbfc;
+  }
+  
+  /* Hover State */
+  .form-select:hover {
+    border-color: #9ca3af;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+  }
+  
+  /* Selected State (when value is not empty) */
+  .form-select:not([value=""]):not(:focus) {
+    border-color: #10b981;
+    background-color: #f0fdf4;
+    color: #047857;
+    font-weight: 500;
+  }
+  
+  /* Alternative styling for selected state using data attribute */
+  .form-select[data-selected="true"] {
+    border-color: #10b981;
+    background-color: #f0fdf4;
+    color: #047857;
+    font-weight: 500;
+  }
+  
+  /* Placeholder/Default Option Styling */
+  .form-select option:first-child {
+    color: #9ca3af;
+    font-style: italic;
+  }
+  
+  /* Other Options Styling */
+  .form-select option:not(:first-child) {
+    color: #333;
+    font-weight: normal;
+    padding: 8px 12px;
+    background-color: #fff;
+  }
+  
+  /* Selected Option in Dropdown */
+  .form-select option:checked {
+    background-color: #4f46e5;
+    color: white;
+  }
+  
+  /* Disabled State */
+  .form-select:disabled {
+    background-color: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+  
+  /* Label Styling (if you want to add a label) */
+  .branch-select-wrapper label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #374151;
+    font-size: 14px;
+  }
+  
+  /* Success/Selected Indicator */
+  .branch-select-wrapper::after {
+    content: '✓';
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #10b981;
+    font-weight: bold;
+    font-size: 18px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+  
+  .branch-select-wrapper.selected::after {
+    opacity: 1;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .branch-select-wrapper {
+      max-width: 100%;
+    }
+    
+    .form-select {
+      padding: 14px 16px;
+      font-size: 16px; /* Prevents zoom on iOS */
+    }
+  }
+  
