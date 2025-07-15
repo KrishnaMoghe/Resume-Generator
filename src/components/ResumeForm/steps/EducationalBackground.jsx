@@ -12,15 +12,21 @@ const EducationalBackground = ({
     {currentStep === 2 && (
       
       <div>
-        <select name="branch" value={formData.branch} onChange={handleChange}>
-          <option value="">Select Branch</option>
-          <option value="Computer">Computer Engineering</option>
-          <option value="Electrical">Electrical Engineering</option>
-          <option value="EC">Electronics and Communication</option>
-          <option value="Mechanical">Mechanical Engineering</option>
-          <option value="Civil">Civil Engineering</option>
-          <option value="Chemical">Chemical Engineering</option>
-        </select>
+        {renderFormGroup(
+            "Branch",
+            "branch",
+            "select",
+            "Select your branch",
+            false,
+            [
+              { value: "Computer", label: "Computer Engineering" },
+              { value: "Electrical", label: "Electrical Engineering" },
+              { value: "Mechanical", label: "Mechanical Engineering" },
+              { value: "Chemical", label: "Chemical Engineering" },
+              { value: "Civil", label: "Civil Engineering" },
+              { value: "EC", label: "Electronics and Communication Engineering" },
+            ]
+          )}
         {renderFormGroup(
           "Current Degree",
           "currentDegree",

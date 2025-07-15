@@ -411,14 +411,6 @@ export default function ResumeForm() {
         {generatedResume && (
           <>
             <ResumePreview formData={formData} refProp={resumeRef} />
-
-            <button
-              type="button"
-              onClick={() => downloadPDF(formData)}
-              className="mt-4 bg-green-600 text-white px-4 py-2 rounded"
-            >
-              Download Resume as PDF
-            </button>
           </>
         )}
       </div>
