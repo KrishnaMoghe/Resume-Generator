@@ -18,6 +18,7 @@ import constants from "./constants";
 const { stepTitles } = constants;
 const { domainOptions } = constants;
 const { toolOptions } = constants;
+
 export default function ResumeForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -45,7 +46,6 @@ export default function ResumeForm() {
     handleTabClick,
     markStepCompleted,
   } = useFormNavigation(1, 8);
-  // Handle all changes except file
 
   const handleNextClick = () => {
     setError("");
@@ -61,6 +61,7 @@ export default function ResumeForm() {
     setError("");
     handleTabClick(stepNumber); // from the hook
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -92,10 +93,11 @@ export default function ResumeForm() {
         .replace(/```[\s\S]*$/, "")           // Remove everything after final ```
         .trim();                              // Trim leftover whitespace
         
-        const imageHTML = formData.photo
+      const imageHTML = formData.photo
         ? `<img src="${formData.photo}" alt="User Photo" style="width:120px;height:120px;border-radius:8px;margin-bottom:20px;" />`
         : "";
-      // ✅ Open clean HTML in new tab
+
+      // ✅ Open clean HTML in new tab with Read Aloud functionality
       const newTab = window.open();
       if (newTab) {
         newTab.document.open();
@@ -113,26 +115,261 @@ export default function ResumeForm() {
                 h1, h2, h3 {
                   color: #333;
                 }
-                .download-btn {
-                  display: inline-block;
+                .action-buttons {
+                  display: flex;
+                  gap: 10px;
                   margin-top: 20px;
+                  flex-wrap: wrap;
+                }
+                .action-btn {
+                  display: inline-block;
                   padding: 10px 20px;
-                  background-color: #007bff;
                   color: white;
                   border: none;
                   border-radius: 4px;
                   font-size: 14px;
                   cursor: pointer;
+                  transition: background-color 0.3s;
+                }
+                .download-btn {
+                  background-color: #007bff;
                 }
                 .download-btn:hover {
                   background-color: #0056b3;
+                }
+                .read-aloud-btn {
+                  background-color: #28a745;
+                }
+                .read-aloud-btn:hover {
+                  background-color: #218838;
+                }
+                .read-aloud-btn:disabled {
+                  background-color: #6c757d;
+                  cursor: not-allowed;
+                }
+                .stop-btn {
+                  background-color: #dc3545;
+                }
+                .stop-btn:hover {
+                  background-color: #c82333;
+                }
+                .reading-indicator {
+                  background-color: #17a2b8;
+                  animation: pulse 1.5s infinite;
+                }
+                @keyframes pulse {
+                  0% { opacity: 1; }
+                  50% { opacity: 0.7; }
+                  100% { opacity: 1; }
+                }
+                .speech-controls {
+                  margin-top: 10px;
+                  display: none;
+                }
+                .speech-controls.active {
+                  display: block;
+                }
+                .speech-control {
+                  margin: 5px 0;
+                }
+                .speech-control label {
+                  display: inline-block;
+                  width: 80px;
+                  font-size: 12px;
+                  color: #666;
+                }
+                .speech-control input[type="range"] {
+                  width: 150px;
                 }
               </style>
             </head>
             <body>
               ${imageHTML}
-              ${rawResume}
-              <button class="download-btn" onclick="window.print()">Download PDF</button>
+              <div id="resume-content">
+                ${rawResume}
+              </div>
+              
+              <div class="action-buttons">
+                <button class="action-btn download-btn" onclick="window.print()">Download PDF</button>
+                <button class="action-btn read-aloud-btn" id="readAloudBtn" onclick="toggleReadAloud()">
+                  🔊 Read Aloud
+                </button>
+              </div>
+              
+              <div class="speech-controls" id="speechControls">
+                <div class="speech-control">
+                  <label for="speechRate">Speed:</label>
+                  <input type="range" id="speechRate" min="0.5" max="2" value="1" step="0.1" onchange="updateSpeechRate()">
+                  <span id="rateValue">1.0x</span>
+                </div>
+                <div class="speech-control">
+                  <label for="speechPitch">Pitch:</label>
+                  <input type="range" id="speechPitch" min="0.5" max="2" value="1" step="0.1" onchange="updateSpeechPitch()">
+                  <span id="pitchValue">1.0</span>
+                </div>
+                <div class="speech-control">
+                  <label for="speechVolume">Volume:</label>
+                  <input type="range" id="speechVolume" min="0" max="1" value="1" step="0.1" onchange="updateSpeechVolume()">
+                  <span id="volumeValue">100%</span>
+                </div>
+              </div>
+
+              <script>
+                let speechSynthesis = window.speechSynthesis;
+                let currentUtterance = null;
+                let isReading = false;
+                let speechRate = 1;
+                let speechPitch = 1;
+                let speechVolume = 1;
+
+                function getResumeText() {
+                  const resumeContent = document.getElementById('resume-content');
+                  // Get text content and clean it up
+                  let text = resumeContent.innerText || resumeContent.textContent;
+                  
+                  // Clean up the text for better speech
+                  text = text
+                    .replace(/\\s+/g, ' ')  // Replace multiple spaces with single space
+                    .replace(/\\n+/g, '. ') // Replace line breaks with periods for natural pauses
+                    .replace(/([a-z])([A-Z])/g, '$1. $2') // Add pause between camelCase words
+                    .replace(/\\./g, '. ') // Ensure periods have spaces after them
+                    .replace(/\\s+\\./g, '.') // Remove spaces before periods
+                    .trim();
+                  
+                  return text;
+                }
+
+                function toggleReadAloud() {
+                  const btn = document.getElementById('readAloudBtn');
+                  const controls = document.getElementById('speechControls');
+                  
+                  if (isReading) {
+                    stopReading();
+                  } else {
+                    startReading();
+                  }
+                }
+
+                function startReading() {
+                  if (!('speechSynthesis' in window)) {
+                    alert('Sorry, your browser does not support text-to-speech.');
+                    return;
+                  }
+
+                  const text = getResumeText();
+                  if (!text.trim()) {
+                    alert('No text content found to read.');
+                    return;
+                  }
+
+                  // Stop any ongoing speech
+                  speechSynthesis.cancel();
+
+                  currentUtterance = new SpeechSynthesisUtterance(text);
+                  currentUtterance.rate = speechRate;
+                  currentUtterance.pitch = speechPitch;
+                  currentUtterance.volume = speechVolume;
+
+                  // Set up event listeners
+                  currentUtterance.onstart = function() {
+                    isReading = true;
+                    updateButtonState();
+                  };
+
+                  currentUtterance.onend = function() {
+                    isReading = false;
+                    updateButtonState();
+                  };
+
+                  currentUtterance.onerror = function(event) {
+                    console.error('Speech synthesis error:', event.error);
+                    isReading = false;
+                    updateButtonState();
+                    alert('Error occurred while reading: ' + event.error);
+                  };
+
+                  // Start speaking
+                  speechSynthesis.speak(currentUtterance);
+                }
+
+                function stopReading() {
+                  speechSynthesis.cancel();
+                  isReading = false;
+                  updateButtonState();
+                }
+
+                function updateButtonState() {
+                  const btn = document.getElementById('readAloudBtn');
+                  const controls = document.getElementById('speechControls');
+                  
+                  if (isReading) {
+                    btn.innerHTML = '⏹️ Stop Reading';
+                    btn.className = 'action-btn stop-btn reading-indicator';
+                    controls.classList.add('active');
+                  } else {
+                    btn.innerHTML = '🔊 Read Aloud';
+                    btn.className = 'action-btn read-aloud-btn';
+                    controls.classList.remove('active');
+                  }
+                }
+
+                function updateSpeechRate() {
+                  const rateSlider = document.getElementById('speechRate');
+                  const rateValue = document.getElementById('rateValue');
+                  speechRate = parseFloat(rateSlider.value);
+                  rateValue.textContent = speechRate.toFixed(1) + 'x';
+                  
+                  if (currentUtterance && isReading) {
+                    // Restart with new rate
+                    stopReading();
+                    setTimeout(startReading, 100);
+                  }
+                }
+
+                function updateSpeechPitch() {
+                  const pitchSlider = document.getElementById('speechPitch');
+                  const pitchValue = document.getElementById('pitchValue');
+                  speechPitch = parseFloat(pitchSlider.value);
+                  pitchValue.textContent = speechPitch.toFixed(1);
+                  
+                  if (currentUtterance && isReading) {
+                    // Restart with new pitch
+                    stopReading();
+                    setTimeout(startReading, 100);
+                  }
+                }
+
+                function updateSpeechVolume() {
+                  const volumeSlider = document.getElementById('speechVolume');
+                  const volumeValue = document.getElementById('volumeValue');
+                  speechVolume = parseFloat(volumeSlider.value);
+                  volumeValue.textContent = Math.round(speechVolume * 100) + '%';
+                  
+                  if (currentUtterance && isReading) {
+                    // Restart with new volume
+                    stopReading();
+                    setTimeout(startReading, 100);
+                  }
+                }
+
+                // Stop reading when the page is closed or refreshed
+                window.addEventListener('beforeunload', function() {
+                  if (isReading) {
+                    speechSynthesis.cancel();
+                  }
+                });
+
+                // Handle visibility change (when tab is switched)
+                document.addEventListener('visibilitychange', function() {
+                  if (document.hidden && isReading) {
+                    // Optionally pause when tab is hidden
+                    // speechSynthesis.pause();
+                  } else if (!document.hidden && speechSynthesis.paused) {
+                    // Resume when tab is visible again
+                    speechSynthesis.resume();
+                  }
+                });
+              </script>
             </body>
           </html>
         `);
