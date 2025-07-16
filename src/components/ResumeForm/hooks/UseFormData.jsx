@@ -2,101 +2,126 @@ import { useState } from "react";
 
 const UseFormData = () => {
   const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    dob: "",
-    gender: "",
-    address: "",
-    linkedIn: "",
-    github: "",
-    languages: "",
+    fullName: "John Doe",
+    email: "john.doe@example.com",
+    phone: "9876543210",
+    dob: "2000-01-01",
+    gender: "Male",
+    address: "123, ABC Street, Gujarat, India",
+    linkedIn: "https://linkedin.com/in/johndoe",
+    github: "https://github.com/johndoe",
+    languages: "English, Hindi, Gujarati",
     photo: null,
-  
+
     branch: "",
     preferredDomains: [],
     customDomains: [],
     toolsTechnologies: [],
     customToolInput: "",
     customTools: [],
-    currentDegree: "",
-    collegeName: "",
-    universityName: "",
-    currentSemester: "",
-    graduationYear: "",
-    cgpa: "",
-    backlogs: "",
-    twelfthSchool: "",
-    twelfthBoard: "",
-    twelfthMarks: "",
-    tenthSchool: "",
-    tenthBoard: "",
-    tenthMarks: "",
-  
-    careerPlans: [],
+    currentDegree: "B.Tech in Computer Engineering",
+    collegeName: "ABC Institute of Technology",
+    universityName: "GTU",
+    currentSemester: "6",
+    graduationYear: "2026",
+    cgpa: "8.5",
+    backlogs: "No",
+    twelfthSchool: "XYZ School",
+    twelfthBoard: "CBSE",
+    twelfthMarks: "85%",
+    tenthSchool: "XYZ School",
+    tenthBoard: "CBSE",
+    tenthMarks: "90%",
+
+    careerPlans: ["Campus Placements", "Higher Studies (Abroad)"],
+    preferredDomains: ["Web Development", "AI/ML"],
     otherDomain: "",
-    relocation: "",
-    preparingExams: "",
-    examNames: "",
-  
-    codingProficiency: "",
-    programmingLanguages: [],
+    relocation: "Yes",
+    preparingExams: "Yes",
+    examNames: "GATE, GRE",
+
+    codingProficiency: "4",
+    programmingLanguages: ["C++", "Python", "JavaScript"],
     otherLanguage: "",
-    otherTool: "",
+    toolsTechnologies: [],
     customToolInput: "",
-    certifications: "",
-    hackathonParticipation: "",
-    hackathonDetails: "",
-  
+    otherTool: "",
+    certifications: "Python for Everybody (Coursera, 2023)",
+    hackathonParticipation: "Yes",
+    hackathonDetails: "Smart India Hackathon Finalist",
+
     projects: [
       {
-        title: "",
-        description: "",
-        technologies: "",
-        role: "",
+        title: "Online Resume Generator",
+        description: "A web app that generates resumes using AI.",
+        technologies: "React, Node.js, OpenAI",
+        role: "Full Stack Developer",
+        link: "https://github.com/johndoe/resume-gen",
+      },
+      {
+        title: "Attendance Tracker",
+        description: "Tracks student attendance using facial recognition.",
+        technologies: "Python, OpenCV, Flask",
+        role: "Backend Developer",
         link: "",
       },
     ],
-  
+
     experiences: [
       {
-        title: "",
-        company: "",
-        duration: "",
-        responsibilities: "",
-        technologies: "",
-        workMode: "",
+        title: "Web Developer Intern",
+        company: "Tech Solutions",
+        duration: "June 2023 - August 2023",
+        responsibilities: "Built responsive frontend using React.",
+        technologies: "React, Tailwind CSS",
+        workMode: "Remote",
       },
     ],
-  
-    academicAchievements: "",
-    coCurricularActivities: "",
-    publications: "",
-    openSourceContributions: "",
-  
-    teamworkComfort: "",
-    lookingForInternships: "",
-    strengths: "",
-    hobbiesInterests: "",
-    specialNeeds: "",
-    additionalComments: "",
-  
-    moocCourses: "",
+
+    academicAchievements: "1st Rank in University, Merit Scholarship Recipient",
+    coCurricularActivities:
+      "Member of Coding Club, Robotics Workshop Participant",
+    publications: "Published a paper in IEEE Xplore on Edge Computing",
+    openSourceContributions: "Contributed to Mozilla Firefox DevTools",
+
+    teamworkComfort: "Yes",
+    lookingForInternships: "Yes",
+    strengths: "Teamwork, Problem-solving, Quick learner",
+    hobbiesInterests: "Playing chess, Blogging, UI Design",
+    specialNeeds: "None",
+    additionalComments:
+      "Looking forward to work in fast-paced learning environments",
+
+    moocCourses: "NPTEL Software Developement",
     sportsAchievements: [{ sportName: "", level: "" }],
-  
-    planningAbroad: "",
-    applyingScholarship: "",
+
+    planningAbroad: "No",
+    applyingScholarship: "No",
     scholarshipNames: "",
   });
-  
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   // Handle file input separately
-  const handleFileChange = (e) => {
-    setFormData({ ...formData, photo: e.target.files[0] });
-  };
+  const [photoUploaded, setPhotoUploaded] = useState(false);
+
+const handleFileChange = (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormData((prev) => ({
+        ...prev,
+        photo: reader.result, // base64 string
+      }));
+      setPhotoUploaded(true); // If you're showing UI confirmation
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
 
   const handleCheckboxChange = (value, field) => {
     const currentValues = formData[field];
@@ -131,6 +156,7 @@ const UseFormData = () => {
     handleCheckboxChange,
     removeDomain,
     removeTool,
+    photoUploaded,
   };
 };
 
