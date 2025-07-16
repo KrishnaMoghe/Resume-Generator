@@ -9,6 +9,22 @@ const HomePage = () => {
     navigate('/resume-form');
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    // Get form data
+    const formData = new FormData(e.target);
+    const name = formData.get('name');
+    const email = formData.get('email');
+    const message = formData.get('message');
+    
+    // Create email content
+    const subject = `Contact Form Submission from ${name}`;
+    const body = `Name: ${name}%0D%0AEmail: ${email}%0D%0A%0D%0AMessage:%0D%0A${message}`;
+    
+    // Open email client
+    window.location.href = `mailto:krishnamoghe74@gmail.com?subject=${encodeURIComponent(subject)}&body=${body}`;
+  };
   return (
     <div className="homepage">
       {/* Navigation */}
@@ -131,8 +147,26 @@ const HomePage = () => {
                     </a>
                   </div>
                 </div>
+                <div className="contact-form">
+              <h3>Send us a Message</h3>
+              <form onSubmit={handleSubmit}>
+                <div className="form-group">
+                  <input type="text" placeholder="Your Name" required />
+                </div>
+                <div className="form-group">
+                  <input type="email" placeholder="Your Email" required />
+                </div>
+                <div className="form-group">
+                  <textarea placeholder="Your Message" rows="5" required></textarea>
+                </div>
+                <button type="submit" className="submit-button">
+                  Send Message
+                </button>
+              </form>
+            </div>
               </div>
             </div>
+
           </div>
         </div>
       </section>
