@@ -514,7 +514,7 @@ export default function ResumeForm() {
     <div className="resume-form-container">
       <div className="form-wrapper">
         <div className="form-header">
-          <h1 className="form-title">Resume Generator</h1>
+          <h1 className="form-title">CraftixAI</h1>
           <p className="form-subtitle">
             Create your professional resume in minutes
           </p>
