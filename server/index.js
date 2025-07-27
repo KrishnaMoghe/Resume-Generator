@@ -1,270 +1,226 @@
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
+const { json } = require('body-parser');
 const axios = require('axios');
-require('dotenv').config();
 
 const app = express();
 const PORT = 5000;
 
 app.use(cors());
-app.use(bodyParser.json());
+app.use(json({ limit: '5mb' }));
 
-// Helper function to create professional resume prompt
-function createProfessionalPrompt(formData) {
-  // Skills categorization helper
-  const categorizeSkills = (languages, tools) => {
-    const programmingLangs = languages.filter(lang => 
-      ['JavaScript', 'Python', 'Java', 'C++', 'C#', 'Go', 'Rust', 'TypeScript', 'PHP', 'Ruby', 'Swift', 'Kotlin'].includes(lang)
-    );
-    const webTech = [...languages, ...tools].filter(tech => 
-      ['React', 'Angular', 'Vue', 'Node.js', 'Express', 'Django', 'Flask', 'Spring', 'HTML', 'CSS', 'SASS'].includes(tech)
-    );
-    const databases = tools.filter(tool => 
-      ['MongoDB', 'MySQL', 'PostgreSQL', 'Redis', 'SQLite', 'Oracle', 'Firebase'].includes(tool)
-    );
-    const cloudTools = tools.filter(tool => 
-      ['AWS', 'Azure', 'GCP', 'Docker', 'Kubernetes', 'Jenkins', 'Git', 'GitHub', 'GitLab'].includes(tool)
-    );
-    
-    return { programmingLangs, webTech, databases, cloudTools };
-  };
+// List of free OpenRouter models for fallback
+const freeModels = [
+  'deepseek/deepseek-r1:free',
+  'mistralai/mistral-7b-instruct:free',
+  'moonshotai/kimi-k2:free',
+  'qwen/qwen3-coder:free',
+  'mistralai/mixtral-8x7b-instruct:free',
+];
 
-  const skillCategories = categorizeSkills(
-    formData.programmingLanguages || [], 
-    formData.toolsTechnologies || []
-  );
+// Helper function to extract JSON string from AI response by removing code fences
+function extractJson(text) {
+  // Try extracting JSON inside ``````
+  let match = text.match(/``````/i);
+  if (match && match[1]) return match[1].trim();
 
-  return `
-You are an expert resume writer with 15+ years of experience in technical recruitment and career counseling. Create a professional, ATS-optimized resume that will impress hiring managers and pass through applicant tracking systems.
+  // Try extracting JSON inside ``````
+  match = text.match(/``````/);
+  if (match && match[1]) return match[1].trim();
 
-**CRITICAL INSTRUCTIONS:**
-- Generate ONLY clean HTML with inline CSS styling
-- Use professional fonts and clean layout
-- Optimize for ATS (Applicant Tracking Systems)
-- Include relevant keywords for the target industry
-- Write compelling bullet points using action verbs
-- Quantify achievements where possible
-- Ensure proper formatting and professional appearance
-- NO emojis, unprofessional language, or casual tone
-- Focus on impact and results, not just responsibilities
+  // Try plain JSON extraction with curly braces {}
+  match = text.match(/{[\s\S]*}/);
+  if (match) return match[0].trim();
 
-**CANDIDATE PROFILE:**
----
-## PERSONAL INFORMATION
-- Name: ${formData.fullName}
-- Email: ${formData.email}
-- Phone: ${formData.phone}
-- Location: ${formData.address}
-- LinkedIn: ${formData.linkedIn || 'N/A'}
-- GitHub/Portfolio: ${formData.github || 'N/A'}
-- Languages: ${formData.languages || 'N/A'}
-
-## EDUCATION BACKGROUND
-**Current Education:**
-- Degree: ${formData.currentDegree}
-- Institution: ${formData.collegeName}, ${formData.universityName}
-- Current Semester: ${formData.currentSemester}
-- Expected Graduation: ${formData.graduationYear}
-- CGPA/Percentage: ${formData.cgpa}
-- Academic Standing: ${formData.backlogs === '0' || !formData.backlogs ? 'Clear academic record' : formData.backlogs + ' pending subjects'}
-
-**Previous Education:**
-- 12th Grade: ${formData.twelfthSchool}, ${formData.twelfthBoard} (${formData.twelfthMarks})
-- 10th Grade: ${formData.tenthSchool}, ${formData.tenthBoard} (${formData.tenthMarks})
-
-## CAREER OBJECTIVES & GOALS
-- Career Aspirations: ${formData.careerPlans?.join(', ') || 'N/A'}
-- Target Domains: ${formData.preferredDomains?.join(', ') || 'N/A'}${formData.otherDomain ? `, ${formData.otherDomain}` : ''}
-- Relocation Flexibility: ${formData.relocation}
-- Competitive Exam Preparation: ${formData.preparingExams === 'Yes' ? formData.examNames || 'Various competitive exams' : 'Not currently preparing'}
-- Internship Seeking: ${formData.lookingForInternships}
-
-## TECHNICAL EXPERTISE
-**Programming Proficiency Level:** ${formData.codingProficiency}/5
-**Technical Skills Breakdown:**
-- Programming Languages: ${skillCategories.programmingLangs.join(', ')}${formData.otherLanguage ? `, ${formData.otherLanguage}` : ''}
-- Web Technologies: ${skillCategories.webTech.join(', ')}
-- Databases: ${skillCategories.databases.join(', ')}
-- Cloud & DevOps: ${skillCategories.cloudTools.join(', ')}
-- Other Tools: ${formData.toolsTechnologies?.filter(tool => !skillCategories.webTech.includes(tool) && !skillCategories.databases.includes(tool) && !skillCategories.cloudTools.includes(tool)).join(', ')}${formData.otherTool ? `, ${formData.otherTool}` : ''}
-
-**Certifications:** ${formData.certifications || 'None currently'}
-
-## PROJECT PORTFOLIO
-${formData.projects?.map((project, index) => `
-**Project ${index + 1}: ${project.title}**
-- Description: ${project.description}
-- Technologies: ${project.technologies}
-- Role: ${project.role}
-- ${project.link ? `Live Demo/Repository: ${project.link}` : ''}
-`).join('\n') || 'No projects listed'}
-
-## PROFESSIONAL EXPERIENCE
-${formData.experiences?.map((exp, index) => `
-**${exp.title}** | ${exp.company}
-Duration: ${exp.duration} | Mode: ${exp.workMode}
-Key Responsibilities: ${exp.responsibilities}
-Technologies Used: ${exp.technologies}
-`).join('\n') || 'No professional experience listed'}
-
-## ACHIEVEMENTS & RECOGNITION
-- Academic Achievements: ${formData.academicAchievements || 'None listed'}
-- Publications: ${formData.publications || 'None'}
-- Open Source Contributions: ${formData.openSourceContributions || 'None'}
-- Hackathon Participation: ${formData.hackathonParticipation === 'Yes' ? formData.hackathonDetails || 'Participated in various hackathons' : 'None'}
-
-## EXTRACURRICULAR ACTIVITIES
-- Co-curricular Activities: ${formData.coCurricularActivities || 'None listed'}
-- Team Collaboration: ${formData.teamworkComfort || 'N/A'}
-- Hobbies & Interests: ${formData.hobbiesInterests || 'N/A'}
-
-## PERSONAL ATTRIBUTES
-- Core Strengths: ${formData.strengths || 'N/A'}
-- Additional Information: ${formData.additionalComments || 'N/A'}
-- Special Accommodations: ${formData.specialNeeds || 'None required'}
-
----
-
-**RESUME GENERATION REQUIREMENTS:**
-
-1. **Structure & Layout:**
-   - Use clean, professional HTML with inline CSS
-   - Implement ATS-friendly formatting
-   - Use consistent fonts (Arial, Calibri, or similar)
-   - Proper spacing and margins
-   - Clean section dividers
-
-2. **Content Enhancement:**
-   - Write compelling professional summary (2-3 lines)
-   - Transform basic project descriptions into achievement-focused bullet points
-   - Use action verbs (Developed, Implemented, Optimized, Led, etc.)
-   - Include relevant industry keywords
-   - Quantify achievements where possible
-
-3. **Professional Optimization:**
-   - Prioritize most relevant information
-   - Use reverse chronological order
-   - Ensure consistent formatting
-   - Include only professional, relevant information
-   - Optimize for target role/industry
-
-4. **ATS Optimization:**
-   - Use standard section headings
-   - Include relevant keywords naturally
-   - Avoid complex formatting or graphics
-   - Use standard fonts and bullet points
-   - Ensure proper heading hierarchy
-
-Generate a polished, professional resume that will stand out to recruiters and pass ATS screening. Focus on impact, achievements, and professional presentation.`;
+  // fallback: return original text
+  return text.trim();
 }
 
-// Enhanced resume generation endpoint
-app.post('/api/generate-resume', async (req, res) => {
-  const formData = req.body;
+// Core function to call OpenRouter with fallback across free models
+async function generateWithFreeOpenRouterModels(prompt) {
+  const apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
 
-  // Validate required fields
-  const requiredFields = ['fullName', 'email', 'phone'];
-  const missingFields = requiredFields.filter(field => !formData[field]);
-  
-  if (missingFields.length > 0) {
-    return res.status(400).json({ 
-      error: `Missing required fields: ${missingFields.join(', ')}` 
-    });
+  for (const model of freeModels) {
+    try {
+      const response = await axios.post(
+        apiUrl,
+        {
+          model,
+          messages: [
+            {
+              role: 'system',
+              content: `
+You are a professional resume writer with 15+ years of experience.
+Your task is to rewrite and enhance ONLY the following text fields, making them concise, professional, ATS-friendly, and achievement-driven. Do NOT change any other fields or their structure.
+
+IMPORTANT: Return ONLY a JSON object in your response.
+Do NOT include any markdown code fences, explanations, or additional text.
+The JSON must start with { and end with } exactly,
+matching the structure described by the user.
+              `.trim(),
+            },
+            {
+              role: 'user',
+              content: prompt,
+            },
+          ],
+          max_tokens: 1024,
+          temperature: 0.7,
+          top_p: 0.7,
+          top_k: 50,
+          repetition_penalty: 1,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+            'Content-Type': 'application/json',
+            'HTTP-Referer': 'https://craftifyai.onrender.com',
+            'X-Title': 'CraftixAI Content Enhancer',
+          },
+        }
+      );
+      return response.data.choices[0].message.content.trim();
+    } catch (error) {
+      console.warn(`Model ${model} failed:`, error.response?.data || error.message);
+      // try next model
+    }
   }
 
+  throw new Error('All free OpenRouter models failed or are rate limited.');
+}
+
+
+// Endpoint 1: Enhance Project Descriptions only
+app.post('/api/enhance-projects', async (req, res) => {
   try {
-    const enhancedPrompt = createProfessionalPrompt(formData);
-    
-    const response = await axios.post(
-      'https://openrouter.ai/api/v1/chat/completions',
-      {
-        model: 'openrouter/auto', // Using more capable model
-        messages: [
-          { 
-            role: 'system', 
-            content: 'You are a professional resume writer and career counselor with expertise in ATS optimization and technical recruitment. Create polished, professional resumes that get results.' 
-          },
-          { role: 'user', content: enhancedPrompt }
-        ],
-        models: [
-          'anthropic/claude-3.5-haiku',
-          'meta-llama/llama-3-8b-instruct'
-        ],
-        temperature: 0.7, // Balanced creativity and consistency
-        max_tokens: 4000, // Increased for detailed resumes
-        top_p: 0.9
-      },
-      {
-        headers: {
-          'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': 'http://localhost:5000', // Required by OpenRouter
-          'X-Title': 'Resume Generator API'
-        }
-      }
-    );
+    const { projects = [] } = req.body;
+    const projectsDescriptions = projects.map(p => p.description || '');
 
-    const generatedResume = response.data.choices[0].message.content;
-    
-    // Basic validation of generated content
-    if (!generatedResume || generatedResume.trim().length < 500) {
-      throw new Error('Generated resume is too short or empty');
-    }
+    if (projectsDescriptions.length === 0)
+      return res.status(400).json({ error: 'No projects descriptions provided.' });
 
-    res.json({ 
-      resume: generatedResume,
-      generatedAt: new Date().toISOString(),
-      model: 'claude-3.5-sonnet'
-    });
+    const prompt = `
+You are a professional resume writer with 15+ years of experience.
+Rewrite and enhance ONLY the PROJECT DESCRIPTIONS below, focusing on professionalism, conciseness, ATS-friendliness, and achievements.
+Return ONLY a JSON array of rewritten descriptions.
 
+
+${JSON.stringify(projectsDescriptions, null, 2)}
+    `;
+
+    const aiResponse = await generateWithFreeOpenRouterModels(prompt);
+
+    const jsonText = extractJson(aiResponse);
+    const enhancedDescriptions = JSON.parse(jsonText);
+
+    res.json({ enhanced: { projectsDescriptions: enhancedDescriptions } });
   } catch (error) {
-    console.error('Resume Generation Error:', {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status
-    });
-    
-    res.status(500).json({ 
-      error: 'Failed to generate resume. Please try again.',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
+    console.error('Enhance Projects Error:', error);
+    res.status(500).json({ error: 'Failed to enhance project descriptions.' });
   }
 });
+
+// Endpoint 2: Enhance Experience Responsibilities only
+app.post('/api/enhance-experiences', async (req, res) => {
+  try {
+    const { experiences = [] } = req.body;
+    const experiencesResponsibilities = experiences.map(e => e.responsibilities || '');
+
+    if (experiencesResponsibilities.length === 0)
+      return res.status(400).json({ error: 'No experience responsibilities provided.' });
+
+    const prompt = `
+You are a professional resume writer with 15+ years of experience.
+Rewrite and enhance ONLY the EXPERIENCE RESPONSIBILITIES below with professionalism, conciseness, ATS-friendliness, and achievements.
+IMPORTANT: Return ONLY a JSON array. Do NOT include markdown, explanations, or any extra text.
+
+${JSON.stringify(experiencesResponsibilities, null, 2)}
+    `;
+
+    const aiResponse = await generateWithFreeOpenRouterModels(prompt);
+
+    const jsonText = extractJson(aiResponse);
+    const enhancedResponsibilities = JSON.parse(jsonText);
+
+    res.json({ enhanced: { experiencesResponsibilities: enhancedResponsibilities } });
+  } catch (error) {
+    console.error('Enhance Experiences Error:', error);
+    res.status(500).json({ error: 'Failed to enhance experience responsibilities.' });
+  }
+});
+
+// Endpoint 3: Enhance Achievements Section (achievements, coCurricularActivities, publications, openSourceContributions)
+app.post('/api/enhance-achievements', async (req, res) => {
+  try {
+    const {
+      achievements = [],
+      coCurricularActivities = [],
+      publications = [],
+      openSourceContributions = [],
+    } = req.body;
+
+    // Check if at least one field has content
+    if (
+      achievements.length === 0 &&
+      coCurricularActivities.length === 0 &&
+      publications.length === 0 &&
+      openSourceContributions.length === 0
+    ) {
+      return res.status(400).json({ error: 'No achievements section data provided.' });
+    }
+
+    const prompt = `
+You are a professional resume writer with 15+ years of experience.
+Rewrite and enhance ONLY the following sections: ACHIEVEMENTS, CO-CURRICULAR ACTIVITIES, PUBLICATIONS, OPEN SOURCE CONTRIBUTIONS.
+Return ONLY a JSON object with keys:
+"achievements", "coCurricularActivities", "publications", "openSourceContributions"
+each containing arrays of enhanced text for the respective field.
+
+Achievements:
+${JSON.stringify(achievements, null, 2)}
+
+Co-Curricular Activities:
+${JSON.stringify(coCurricularActivities, null, 2)}
+
+Publications:
+${JSON.stringify(publications, null, 2)}
+
+Open Source Contributions:
+${JSON.stringify(openSourceContributions, null, 2)}
+    `;
+
+    const aiResponse = await generateWithFreeOpenRouterModels(prompt);
+
+    const jsonText = extractJson(aiResponse);
+    const enhancedSections = JSON.parse(jsonText);
+
+    res.json({ enhanced: enhancedSections });
+  } catch (error) {
+    console.error('Enhance Achievements Error:', error);
+    res.status(500).json({ error: 'Failed to enhance achievements section.' });
+  }
+});
+
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
-    timestamp: new Date().toISOString(),
-    service: 'Resume Generator API'
-  });
-});
-
-// Resume templates endpoint (optional enhancement)
-app.get('/api/templates', (req, res) => {
   res.json({
-    templates: [
-      {
-        id: 'professional',
-        name: 'Professional',
-        description: 'Clean, corporate-style resume template'
-      },
-      {
-        id: 'technical',
-        name: 'Technical',
-        description: 'Optimized for software development roles'
-      },
-      {
-        id: 'creative',
-        name: 'Creative',
-        description: 'Modern design for creative professionals'
-      }
-    ]
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    service: 'CraftixAI OpenRouter Free Models Enhancer',
+    modelsTried: freeModels,
   });
 });
 
+// Error handler middleware
+app.use((err, req, res, next) => {
+  console.error('Server Error:', err);
+  res.status(500).json({ error: 'Internal server error occurred.' });
+});
+
+// Start the server
 app.listen(PORT, () => {
-  console.log(`🚀 Resume Generator API running at http://localhost:${PORT}`);
-  console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`🚀 CraftixAI backend running at http://localhost:${PORT}`);
 });
